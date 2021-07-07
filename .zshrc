@@ -1,19 +1,58 @@
-export ZPLUG_HOME=/usr/local/opt/zplug
-source $ZPLUG_HOME/init.zsh
+# zplug init
+if [[ ! -d ~/.zplug ]]; then
+    git clone https://github.com/zplug/zplug ~/.zplug
+    source ~/.zplug/init.zsh && zplug update --self
+fi
+source ~/.zplug/init.zsh
+
+# LANG
+export LANG=ja_JP.UTF-8
+
+# Use vim
+export EDITOR="vim"
+
+# PATH
+# local pip
+export PATH=$HOME/.local/bin:$PATH
+
+# Add zplug bin
+export PATH=$HOME/.zplug/bin:$PATH
+
+# poetry
+export PATH=$PATH:$HOME/.poetry/bin
+
+# 個人的に作ったスクリプトのパスを追加
+export PATH=$PATH:$HOME/bin
+
+# サーバ個別のPATH設定をインポート
+if [ -f ~/.zshrc.path ]; then
+    source ~/.zshrc.path
+fi
+
+# alias
+alias awk="gawk"
+alias ll="ls -l"
+alias la="ls -a"
+alias mv="mv -i"
+alias rm="rm -i"
+alias grep="grep --color=auto -i"
+alias rg="rg --color=auto -i"
+
+# サーバ個別のalias設定をインポート
+if [ -f ~/.zshrc.alias ]; then
+    source ~/.zshrc.alias
+fi
+
+# HISTORY
+HISTFILE=~/.zsh_history
+HISTSIZE=1000000
+SAVEHIST=1000000
 
 # 使いたいzshのプラグイン
 zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-completions"
 zplug "chrissicool/zsh-256color"
 zplug "zsh-users/zsh-syntax-highlighting"
-
-if ! zplug check --verbose; then
-  printf 'Install? [y/N]: '
-  if read -q; then
-    echo; zplug install
-  fi
-fi
-zplug load --verbose
 
 # prezto用のプラグイン
 zplug "modules/environment", from:prezto
@@ -28,15 +67,32 @@ zplug "modules/prompt", from:prezto
 zplug "modules/homebrew", from:prezto
 zplug "modules/ruby", from:prezto
 
-#zpreztoの初期化
-if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
-fi
+# pecoで履歴を検索する
+function peco-history-selection() {
+    cmd='tac'
+    case "${OSTYPE}" in
+        freebsd*|darwin*)
+            cmd=('tail' '-r')
+        ;;
+    esac
+    BUFFER=`history -n 1 | $cmd | awk '!a[$0]++' | peco`
+    CURSOR=$#BUFFER
+    zle reset-prompt
+}
+zle -N peco-history-selection
 
-# HISTORY
-HISTFILE=~/.zsh_history
-HISTSIZE=1000000
-SAVEHIST=1000000
+# pecoでスニペットを読み込む
+function peco-snippets-loader() {
+    if ls ~/.peco.snippet* >/dev/null 2>&1; then
+        snippet=`cat ~/.peco.snippet* | grep -v "^#" | peco`
+        BUFFER="$(echo $snippet | sed -e 's/^\[.*\] *//') "
+        CURSOR=$#BUFFER
+    else
+        echo "~/.peco.snippet* is not found."
+    fi
+    zle reset-prompt
+}
+zle -N peco-snippets-loader
 
 # peco ghq search
 function peco-ghq-search() {
@@ -56,4 +112,30 @@ if type peco >/dev/null 2>&1; then
     bindkey '^x' peco-snippets-loader
 fi
 
-# Customize to your needs...
+# gitignore.io
+function gi() {
+    curl -sL https://www.gitignore.io/api/$@
+}
+
+_gitignoreio_get_command_list() {
+    curl -sL https://www.gitignore.io/api/list | tr "," "\n"
+}
+
+_gitignoreio () {
+    compset -P '*,'
+    compadd -S '' `_gitignoreio_get_command_list`
+}
+
+compdef _gitignoreio gi
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+
+# Then, source plugins and add commands to $PATH
+zplug load --verbose
