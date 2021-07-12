@@ -67,6 +67,22 @@ zplug "modules/prompt", from:prezto
 zplug "modules/homebrew", from:prezto
 zplug "modules/ruby", from:prezto
 
+#zpreztoの初期化
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+# Then, source plugins and add commands to $PATH
+zplug load --verbose
+
 # pecoで履歴を検索する
 function peco-history-selection() {
     cmd='tac'
@@ -128,14 +144,4 @@ _gitignoreio () {
 
 compdef _gitignoreio gi
 
-# Install plugins if there are plugins that have not been installed
-if ! zplug check --verbose; then
-    printf "Install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
-fi
 
-
-# Then, source plugins and add commands to $PATH
-zplug load --verbose
