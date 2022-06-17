@@ -32,9 +32,23 @@ zinit light-mode for \
 HISTFILE=~/.zsh_history
 HISTSIZE=1000000
 SAVEHIST=1000000
+setopt hist_ignore_all_dups  # 重複するコマンド行は古い方を削除
+setopt hist_ignore_dups      # 直前と同じコマンドラインはヒストリに追加しない
+setopt share_history         # コマンド履歴ファイルを共有する
+setopt append_history        # 履歴を追加 (毎回 .zsh_history を作るのではなく)
+setopt inc_append_history    # 履歴をインクリメンタルに追加
+setopt hist_no_store         # historyコマンドは履歴に登録しない
+setopt hist_reduce_blanks    # 余分な空白は詰めて記録
+zstyle ':completion:*:default' menu select
 
-### LANG
-export LANG=ja_JP.UTF-8
+### zsh config
+bindkey -e # シェル操作をvim互換にする
+autoload -U compinit # ディレクトリ名をtabを押して補完するときに選択してるやつに色つける
+compinit # ディレクトリ名をtabを押して補完するときに選択してるやつに色つける
+setopt list_packed # 補完候補を詰めて表示
+setopt noautoremoveslash # ディレクトリ選択時、最後の/を残す。好み。
+setopt list_types # 補完候補一覧でファイルの種別を識別マーク表示(ls -F の記号)
+zstyle ':completion:*:default' list-colors ${LS_COLORS} # lsコマンドの補完候補にも色付き表示
 
 ### alias
 alias awk="gawk"
@@ -53,12 +67,12 @@ zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-autosuggestions
 zinit light zsh-users/zsh-completions
 zinit light mollifier/anyframe
-zinit light zdharma-continuum/fast-syntax-highlighting
+# zinit light zdharma-continuum/fast-syntax-highlighting
 zinit snippet OMZL::git.zsh
 zinit snippet OMZP::git
 zinit snippet PZTM::helper
 ### End of Zinit Config
-
+# en_US.UTF-8
 ### peco関係の関数をキーバインドに登録
 bindkey '^b' anyframe-widget-cdr
 bindkey '^r' anyframe-widget-put-history
@@ -80,14 +94,13 @@ _gitignoreio () {
     compadd -S '' `_gitignoreio_get_command_list`
 }
 
-compdef _gitignoreio gi
+# compdef _gitignoreio gi
 
-export GITHUB_TOKEN=`cat ~/.ssh/github_token`
-ssh-add -K ~/.ssh/id_rsa
-export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
+# export GITHUB_TOKEN=`cat ~/.ssh/github_token`
+# ssh-add -K ~/.ssh/id_rsa
+# export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
 
 # box autocomplete setup
-BOX_AC_ZSH_SETUP_PATH=/Users/y.midorikawa/Library/Caches/@box/cli/autocomplete/zsh_setup && test -f $BOX_AC_ZSH_SETUP_PATH && source $BOX_AC_ZSH_SETUP_PATH;
+# BOX_AC_ZSH_SETUP_PATH=/Users/y.midorikawa/Library/Caches/@box/cli/autocomplete/zsh_setup && test -f $BOX_AC_ZSH_SETUP_PATH && source $BOX_AC_ZSH_SETUP_PATH;
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
