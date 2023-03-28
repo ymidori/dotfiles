@@ -58,7 +58,7 @@ alias mv="mv -i"
 alias rm="rm -i"
 alias grep="grep --color=auto -i"
 alias rg="rg --color=auto -i"
-alias vim="nvim"
+alias python="python3" 
 
 ### Zinit Config
 zinit ice pick"async.zsh" src"pure.zsh"
@@ -74,7 +74,7 @@ zinit snippet PZTM::helper
 ### End of Zinit Config
 # en_US.UTF-8
 ### peco関係の関数をキーバインドに登録
-bindkey '^b' anyframe-widget-cdr
+bindkey '^v' anyframe-widget-cdr
 bindkey '^r' anyframe-widget-put-history
 bindkey '^]' anyframe-widget-cd-ghq-repository
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
